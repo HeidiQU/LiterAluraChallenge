@@ -2,6 +2,8 @@ package com.heidiquinones.LiterAluraChallenge.modelos;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "libros")
 public class Libro {
@@ -13,7 +15,26 @@ public class Libro {
     @Enumerated(EnumType.STRING)
     private Idioma idioma;
     private Double descargas;
-    private Integer year;
+    @OneToMany(mappedBy = "libro", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Autor> autores;
+
+    public Libro(){}
+
+    public Libro(RecordLibros recordLibro){
+        this.titulo = recordLibro.titulo();
+        this.idioma = Idioma.fromString(recordLibro.idioma().split(",")[0].trim());
+        this.descargas = recordLibro.descargas();
+
+    }
+
+    public List<Autor> getAutores() {
+        return autores;
+    }
+
+    public void setAutores(List<Autor> autores) {
+        autores.forEach(a -> a.setLibro(this));
+        this.autores = autores;
+    }
 
     public Long getId() {
         return id;
@@ -45,13 +66,5 @@ public class Libro {
 
     public void setDescargas(Double descargas) {
         this.descargas = descargas;
-    }
-
-    public Integer getYear() {
-        return year;
-    }
-
-    public void setYear(Integer year) {
-        this.year = year;
     }
 }
