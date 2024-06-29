@@ -12,28 +12,34 @@ public class Libro {
     private  Long id;
     @Column(unique = true)
     private String titulo;
-    @Enumerated(EnumType.STRING)
-    private Idioma idioma;
+    private String idioma;
     private Double descargas;
-    @OneToMany(mappedBy = "libro", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "libros_y_autores", joinColumns = @JoinColumn(name = "libro_id"),
+            inverseJoinColumns = @JoinColumn(name = "autor_id"))
     private List<Autor> autores;
+
+    @Override
+    public String toString() {
+        return  titulo + '\n' +
+                "Idioma: " + idioma + '\n' +
+                "Número de Descargas: " + descargas + "\n" +
+                "Autores=" + autores;
+    }
 
     public Libro(){}
 
-    public Libro(RecordLibros recordLibro){
-        this.titulo = recordLibro.titulo();
-        this.idioma = Idioma.fromString(recordLibro.idioma().split(",")[0].trim());
-        this.descargas = recordLibro.descargas();
-
-    }
-
-    public List<Autor> getAutores() {
-        return autores;
-    }
-
-    public void setAutores(List<Autor> autores) {
-        autores.forEach(a -> a.setLibro(this));
+    public Libro(DatosLibros datosLibro, List<Autor> autores){
+        this.titulo = datosLibro.titulo();
         this.autores = autores;
+        this.idioma = getUnIdioma(datosLibro);
+        this.descargas = datosLibro.descargas();
+
+    }
+
+    private String getUnIdioma(DatosLibros datosLibro) {
+        String idioma = datosLibro.idiomas().toString();
+        return idioma;
     }
 
     public Long getId() {
@@ -52,11 +58,11 @@ public class Libro {
         this.titulo = titulo;
     }
 
-    public Idioma getIdioma() {
+    public String getIdioma(String idioma) {
         return idioma;
     }
 
-    public void setIdioma(Idioma idioma) {
+    public void setIdioma(String idioma) {
         this.idioma = idioma;
     }
 
@@ -66,5 +72,13 @@ public class Libro {
 
     public void setDescargas(Double descargas) {
         this.descargas = descargas;
+    }
+
+    public List<Autor> getAutores() {
+        return autores;
+    }
+
+    public void setAutores(List<Autor> autores) {
+        this.autores = autores;
     }
 }

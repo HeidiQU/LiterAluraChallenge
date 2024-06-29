@@ -2,6 +2,9 @@ package com.heidiquinones.LiterAluraChallenge.modelos;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Entity
 @Table(name = "autores")
 public class Autor {
@@ -12,12 +15,12 @@ public class Autor {
     private String nombre;
     private Integer nacimiento;
     private Integer fallecimiento;
-    @ManyToOne
-    private Libro libro;
+    @ManyToMany(mappedBy = "autores", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private List<Libro> libros;
 
-    public Autor(){};
+    public Autor(){}
 
-    public Autor(RecordAutor a){
+    public Autor(DatosAutor a){
         this.nombre = a.nombre();
         this.nacimiento = a.nacimiento();
         this.fallecimiento = a.fallecimiento();
@@ -55,19 +58,29 @@ public class Autor {
         this.fallecimiento = fallecimiento;
     }
 
-    public Libro getLibro() {
-        return libro;
+    public List<Libro> getLibros() {
+        return libros;
     }
 
-    public void setLibro(Libro libro) {
-        this.libro = libro;
+    public void setLibros(List<Libro> libros) {
+        this.libros = libros;
     }
 
     @Override
     public String toString() {
-        return "Autor {" +
-                "Nombre: " + nombre +
-                " Nacido el: " + nacimiento +
-                ", Falleció el: " + fallecimiento + '}';
+        if (libros==null){
+            return "Autor: \n" +
+                    "Nombre: " + nombre + "\n" +
+                    "Nacido el: " + nacimiento +
+                    ", Falleció el: " + fallecimiento + '\n';
+        }
+        String susLibros = libros.stream()
+                .map(Libro::getTitulo)
+                .collect(Collectors.joining(" - "));
+        return "Autor: \n" +
+                "Nombre: " + nombre + "\n" +
+                "Nacido el: " + nacimiento +
+                ", Falleció el: " + fallecimiento + '\n'+
+                "Libros Registrados: " + susLibros;
     }
 }
